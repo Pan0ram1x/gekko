@@ -59,19 +59,20 @@ Open up the config.js file inside the Gekko directory with a text editor and sea
   markets: BTC/GHS
 
 * Kraken:
-  currencies: XRP, EUR, KRW, USD, LTC, XVN
-  assets: LTC, NMC, XBT, XVN, EUR, KRW, USD
+  currencies: XRP, EUR, KRW, USD, LTC, XVN  
+  assets: LTC, NMC, XBT, XVN, EUR, KRW, USD  
   markets: XRP/LTC, EUR/LTC, KRW/LTC, USD/LTC, XRP/NMC, EUR/NMC, KRW/NMC, USD/NMC, LTC/XBT, NMC/XBT, XRP/XBT, XVN/XBT, EUR/XBT, KRW/XBT, USD/XBT, XRP/XVN, XRP/EUR, XVN/EUR, XRP/KRW, XRP/USD, XVN/USD.
 
 ## Automate trading advice
 
 If you want Gekko to provide automated trading advice you need to configure this here. Note that this has unrelated to automatic trading which is a plugin that creates order based on this advice. (So you need to calculate advice if you want to automate trading.)
 
-Gekko supports a number of technical analysis indicators, currently it supports:
+Gekko supports a number of technical analysis indicators, currently it supports trading methods for the indicators:
 
 - DEMA
 - MACD
 - PPO
+- RSI
 
 Open up the config.js file again and configure at this part:
 
@@ -177,6 +178,26 @@ Very similar to MACD but also a little different, read more [here](http://stockc
 - the down treshold and the up treshold tell Gekko how big the difference in the lines needs to be for it to be considered a trend. If you set these to 0 each line cross would trigger new advice.
 - persistence tells Gekko how long the thresholds needs to be met until Gekko considers the trend to be valid.
 
+### RSI
+
+The Relative Strength Index is a momentum oscillator that measures the speed and change of price movements. Read more about it [here](http://stockcharts.com/help/doku.php?id=chart_school:technical_indicators:relative_strength_in). Configure it like so:
+
+    // RSI settings:
+    config.RSI = {
+      interval: 14,
+      thresholds: {
+        low: 30,
+        high: 70,
+        // How many candle intervals should a trend persist
+        // before we consider it real?
+        persistence: 1
+      }
+    };
+
+- The interval is the amount of periods the RSI should use.
+- The thresholds determine what level of RSI would trigger an up or downtrend.
+- persistence tells Gekko how long the thresholds needs to be met until Gekko considers the trend to be valid.
+
 ## Enabling plugins
 
 Gekko currently has a couple plugins:
@@ -212,6 +233,10 @@ Configure it like this:
 - key is your API key.
 - secret is your API secret.
 - username is the username (only required for CEX.io and Bitstamp).
+
+#### Special note for CEX.io users
+
+When you have GHS on cexio you will get payouts in the form of mining rewards, however those rewards are always in the form of the currency (BTC). For as long as the advice is to go long (buy GHS) Gekko will check every five minutes if new payout has been earned, if it is Gekko will reinvest this into GHS.
 
 ### Advice logger
 
@@ -262,7 +287,6 @@ Go to the config and configure it like this:
 - fee is the exchange fee (in %) Gekko should take into considarion when simulating orders.
 - slippage is the costs in (in %) associated with not being able to buy / sell at market price.*
 
-
 *If you are trading a lot and you are buying 100% currency you might not get it all at market price and you have to walk the book in order to take that position. Also note that Gekko uses the candle close price and is unaware of the top asks bids, also take this into account. It is important that you set this number correctly or the resulted calculated profit be very wrong. Read more information [here](http://www.investopedia.com/terms/s/slippage.asp). Take these into consideration when setting a slippage:
 
 - How much spread is there normally on this market?
@@ -275,6 +299,11 @@ The output will be something like:
     2013-06-02 18:21:15 (INFO): (PROFIT REPORT) original balance:    207.465 USD
     2013-06-02 18:21:15 (INFO): (PROFIT REPORT) current balance:     217.465 USD
     2013-06-02 18:21:15 (INFO): (PROFIT REPORT) profit:          10.000 USD (4.820%)
+
+#### Special note for CEX.io users
+
+At CEX.io the asset is bound to devalue over time, however investers are compensated with mining rewards. Because
+the size of this reward depends on factors outside the market **this reward is not taken into consideration when simulating the profit.**
 
 ### Mailer
 
